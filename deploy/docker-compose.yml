@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ../
+      dockerfile: ./deploy/Dockerfile.local
+    command: python manage.py runserver 0.0.0.0:8080
+    volumes:
+      - ../:/usr/src/
+    ports:
+      - 8080:8080
+    env_file:
+      - ./.env.local
+    depends_on:
+      - pg
+      - migration
+  pg:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./.env.local
+  migration:
+    build:
+      context: ../
+      dockerfile: ./deploy/Dockerfile.local
+    command: python manage.py migrate --noinput
+    volumes:
+      - ../:/usr/src/
+    depends_on:
+      - pg
+
+volumes:
+  postgres_data:
