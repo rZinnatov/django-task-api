@@ -27,7 +27,12 @@ services:
     build:
       context: ../
       dockerfile: ./deploy/Dockerfile.local
-    command: python manage.py migrate --noinput
+    env_file:
+      - ./.env.local
+    command: >
+      sh -c "python manage.py flush --noinput &&
+             python manage.py migrate &&
+             python manage.py createsuperuser --noinput --username admin --email admin@task.test"
     volumes:
       - ../:/usr/src/
     depends_on:
